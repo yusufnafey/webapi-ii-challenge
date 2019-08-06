@@ -7,23 +7,31 @@ server.use(express.json());
 // server.use("/api/posts", router);
 
 server.post("/", (req, res) => {
-  const user = req.body;
-  if (!user.title || !user.contents) {
+  const post = req.body;
+  if (!post.title || !post.contents) {
     res
       .status(400)
-      .json({ errorMessage: "Please provide name and bio for the user." });
+      .json({
+        errorMessage: "Please provide title and contents for the post."
+      });
   } else {
-    db.insert(user)
-      .then(user => {
-        res.status(201).json(user);
+    db.insert(post)
+      .then(post => {
+        res.status(201).json(post);
       })
       .catch(error => {
         res.status(500).json({
-          error: "There was an error while saving the user to the database."
+          error: "There was an error while saving the post to the database."
         });
       });
   }
 });
+
+// server.post('/:id/comments', (req, res)) => {
+//     const user = req.body
+//     const { id } = req.params
+
+// }
 
 server.get("/", (req, res) => {
   db.find()
