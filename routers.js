@@ -22,33 +22,29 @@ router.post("/", (req, res) => {
 });
 
 router.post("/:id/comments", (req, res) => {
-  const post = req.body;
+  const comment = req.body;
   const { id } = req.params;
 
-  if (!post.text) {
+  if (!comment.text) {
     res
       .status(400)
       .json({ errorMessage: "Please provide text for the comment." });
   } else {
-    db.findPostComments(id)
-      .then(postComment => {
-        if (postComment) {
-          res.status(201).json({ postComment });
+    db.insertComment(comment) // find by id first
+      .then(id => {
+        // id instead of post
+        if (post) {
+          res.status(201).json({ post });
         } else {
-          res
-            .status(404)
-            .json({
-              message: "The post with the specified ID does not exist. "
-            });
+          res.status(404).json({
+            message: "The post with the specified ID does not exist. "
+          });
         }
       })
       .catch(error => {
-        res
-          .status(500)
-          .json({
-            error:
-              "There was an error while saving the comment ot the database. "
-          });
+        res.status(500).json({
+          error: "There was an error while saving the comment ot the database. "
+        });
       });
   }
 });
@@ -70,11 +66,12 @@ router.get("/:id", (req, res) => {
 
   db.findById(id)
     .then(post => {
-      if (post) {
+      if (post.length > 0) {
         // if I don't put post.id, code 404 doesn't work.
         // if I do put post.id, code 200 doesn't work
         // the same logic works fine with router.delete
         res.status(200).json(post);
+        console.log(post);
       } else {
         res
           .status(404)
@@ -88,10 +85,20 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// server.get('/:id/comments', (req, res) => {
+// router.get('/:id/comments', (req, res) => {
 //     const { id } = req.params
 
-//     db.findById(id)
+//     db.findCommentsById(id)
+//         .then(post => {
+//             if (post) {
+//                 res.status(200).json(post)
+//             } else {
+//                 res.status(404).json({ message: "The post with the specified ID does not exist." })
+//             }
+//         })
+//         .catch(error => {
+//             res.status(500).json({ error: "THe comments information could not be retrieved". })
+//         })
 // })
 
 router.delete("/:id", (req, res) => {
