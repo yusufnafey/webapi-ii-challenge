@@ -3,6 +3,7 @@ const db = require("./data/db.js");
 
 router.post("/", (req, res) => {
   const post = req.body;
+
   if (!post.title || !post.contents) {
     res.status(400).json({
       errorMessage: "Please provide title and contents for the post."
@@ -20,10 +21,37 @@ router.post("/", (req, res) => {
   }
 });
 
-// router.post("/:id/comments", (req, res) => {
-//   const post = req.body;
-//   const { id } = req.params;
-// });
+router.post("/:id/comments", (req, res) => {
+  const post = req.body;
+  const { id } = req.params;
+
+  if (!post.text) {
+    res
+      .status(400)
+      .json({ errorMessage: "Please provide text for the comment." });
+  } else {
+    db.findPostComments(id)
+      .then(postComment => {
+        if (postComment) {
+          res.status(201).json({ postComment });
+        } else {
+          res
+            .status(404)
+            .json({
+              message: "The post with the specified ID does not exist. "
+            });
+        }
+      })
+      .catch(error => {
+        res
+          .status(500)
+          .json({
+            error:
+              "There was an error while saving the comment ot the database. "
+          });
+      });
+  }
+});
 
 router.get("/", (req, res) => {
   db.find()
