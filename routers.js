@@ -30,9 +30,8 @@ router.post("/:id/comments", (req, res) => {
       .status(400)
       .json({ errorMessage: "Please provide text for the comment." });
   } else {
-    db.insertComment(comment) // find by id first
-      .then(id => {
-        // id instead of post
+    db.insertComment(comment)
+      .then(post => {
         if (post) {
           res.status(201).json({ post });
         } else {
@@ -85,21 +84,25 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// router.get('/:id/comments', (req, res) => {
-//     const { id } = req.params
+router.get("/:id/comments", (req, res) => {
+  const { id } = req.params;
 
-//     db.findCommentsById(id)
-//         .then(post => {
-//             if (post) {
-//                 res.status(200).json(post)
-//             } else {
-//                 res.status(404).json({ message: "The post with the specified ID does not exist." })
-//             }
-//         })
-//         .catch(error => {
-//             res.status(500).json({ error: "THe comments information could not be retrieved". })
-//         })
-// })
+  db.findCommentById(id)
+    .then(post => {
+      if (post) {
+        res.status(200).json(post);
+      } else {
+        res
+          .status(404)
+          .json({ message: "The post with the specified ID does not exist." });
+      }
+    })
+    .catch(error => {
+      res
+        .status(500)
+        .json({ error: "The comments information could not be retrieved." });
+    });
+});
 
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
